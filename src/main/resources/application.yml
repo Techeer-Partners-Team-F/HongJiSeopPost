@@ -3,10 +3,10 @@ spring:
     name: 'webpost'
 
   datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/webpost
     username: root
     password: 1234
-    driver-class-name: com.mysql.jdbc.Driver
 
   jpa:
     database-platform: org.hibernate.dialect.MySQLDialect
@@ -20,9 +20,10 @@ spring:
         format_sql: true
         use_sql_comments: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
+  jwt:
+    secret: "test"
 
 server:
   port: 8080
-
 

@@ -20,6 +20,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicUpdate;
+import techpart.webpost.dto.request.PostDto;
 
 @Getter
 @Entity
@@ -42,9 +43,6 @@ public class Post {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @Column(name = "view_cnt", nullable = false)
-    private int viewCnt;
-
     @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     private String content;
 
@@ -61,11 +59,20 @@ public class Post {
     @Column(name = "like_cnt",nullable = false)
     private int likeCnt;
 
+    @Column(name = "view_cnt", nullable = false)
+    private int viewCnt;
+
+
     public void increaseLike(){
         likeCnt++;
     }
 
     public void decreaseLike(){
         likeCnt--;
+    }
+
+    public void update(PostDto postDto){
+        this.content = postDto.getContent();
+        this.title = postDto.getTitle();
     }
 }

@@ -144,6 +144,20 @@ class PostServiceTest {
     }
 
     @Test
+    void 정상_likePost(){
+        //given
+        doReturn(Optional.of(TEST_USER)).when(userRepository).findByEmail(EMAIL);
+        doReturn(Optional.of(testPost)).when(postRepository).findByIdAndUser(1L, TEST_USER);
+
+        //when
+        assertThat(testPost.getLikeCnt()).isEqualTo(0);
+        postService.likePost(EMAIL,1L);
+
+        //then
+        assertThat(testPost.getLikeCnt()).isEqualTo(1);
+    }
+
+    @Test
     void 비정상_없는유저_BusinessException_호출(){
         //given
         doThrow(BusinessException.class).when(userRepository).findByEmail(any());
@@ -174,6 +188,8 @@ class PostServiceTest {
         assertThatThrownBy(() -> postService.deletePost(TEST_USER.getEmail(),1L))
             .isInstanceOf(BusinessException.class);
         assertThatThrownBy(() -> postService.updatePost(TEST_USER.getEmail(),1L,new PostDto()))
+            .isInstanceOf(BusinessException.class);
+        assertThatThrownBy(() -> postService.likePost(TEST_USER.getEmail(),1L))
             .isInstanceOf(BusinessException.class);
     }
 }

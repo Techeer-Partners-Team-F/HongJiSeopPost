@@ -69,4 +69,11 @@ public class PostController {
         ResPostDto resPostDto = postService.detailPost(postId);
         return ResponseEntity.status(HttpStatus.OK).body(resPostDto);
     }
+
+    @PostMapping("/{postId}/like")
+    public ResponseEntity<?> addLikePost(@PathVariable("postId") Long postId,@AuthenticationPrincipal CustomUserDetails customUserDetails){
+        String email = customUserDetails.getUsername();
+        postService.likePost(email,postId);
+        return ResponseEntity.status(HttpStatus.OK).body(null);
+    }
 }

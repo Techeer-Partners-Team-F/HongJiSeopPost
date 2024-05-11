@@ -1,5 +1,6 @@
 package techpart.webpost.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -17,6 +18,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import techpart.webpost.global.constant.Role;
 
 @Getter
@@ -47,10 +49,21 @@ public class User {
     private Role role;
 
     @PastOrPresent
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @PastOrPresent
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     @Column(name = "modified_at", nullable = true)
     private LocalDateTime modifiedAt;
+
+    public User(String name, String email, String password, Role role,BCryptPasswordEncoder bCryptPasswordEncoder) {
+        this.name = name;
+        this.email = email;
+        this.password = bCryptPasswordEncoder.encode(password);
+        this.role = role;
+        this.createdAt = LocalDateTime.now();
+        this.modifiedAt = null;
+    }
 }

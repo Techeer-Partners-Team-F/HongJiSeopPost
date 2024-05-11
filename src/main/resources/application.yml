@@ -22,7 +22,7 @@ spring:
     hibernate:
       ddl-auto: create-drop
   jwt:
-    secret: "test"
+    secret: "6rVmxOM0O8npkeFQp56K4u7LYrTWXFnxzu2_K3mzOnk"
 
 server:
   port: 8080

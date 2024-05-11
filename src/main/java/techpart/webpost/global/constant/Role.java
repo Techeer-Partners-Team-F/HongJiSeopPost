@@ -1,14 +1,19 @@
 package techpart.webpost.global.constant;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public enum Role {
-    ADMIN,
-    USER;
+    ROLE_ADMIN("ROLE_ADMIN"),
+    ROLE_USER("ROLE_USER");
 
-    @JsonCreator
+    private final String name;
+
+    Role(String name) {
+        this.name=name;
+    }
+
+//    @JsonCreator
     public static Role from(String role){
         for (Role value : Role.values()) {
             if(value.toString().equals(role)){

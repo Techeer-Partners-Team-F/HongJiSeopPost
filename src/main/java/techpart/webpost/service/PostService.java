@@ -74,11 +74,21 @@ public class PostService {
     }
 
     public void deletePost(String email, Long postId){
-        User postUser = userRepository.findByEmail(email).orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
-        Post existedPost = postRepository.findByIdAndUser(postId,postUser).orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
+        Post existedPost = getExistedPost(email, postId);
 
         postRepository.delete(existedPost);
 //        postRepository.deleteById(postId);
+    }
+
+
+    public void likePost(String email, Long postId){
+        Post existedPost = getExistedPost(email, postId);
+        existedPost.increaseLike();
+    }
+
+    private Post getExistedPost(String email, Long postId) {
+        User postUser = userRepository.findByEmail(email).orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
+        return postRepository.findByIdAndUser(postId,postUser).orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
     }
 
     private ResPostDto convertToDto(Post post, boolean getReply){

@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import techpart.webpost.domain.User;
 import techpart.webpost.dto.request.JoinDto;
 import techpart.webpost.dto.response.ResUserDto;
@@ -16,6 +17,7 @@ import techpart.webpost.validation.UserValidation;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class JoinService {
 

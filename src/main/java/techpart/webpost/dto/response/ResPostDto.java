@@ -1,5 +1,6 @@
 package techpart.webpost.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotEmpty;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,8 +24,10 @@ public class ResPostDto {
     private final String content;
 
     @NotEmpty
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private final LocalDateTime createdAt;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private final LocalDateTime modifiedAt;
 
     @NotEmpty

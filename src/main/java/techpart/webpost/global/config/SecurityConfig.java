@@ -13,12 +13,13 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import techpart.webpost.global.constant.Role;
-import techpart.webpost.global.security.jwt.JWTFilter;
-import techpart.webpost.global.security.jwt.JWTUtil;
-import techpart.webpost.global.security.jwt.LoginFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
+import techpart.webpost.global.security.filter.CustomLogoutFilter;
+import techpart.webpost.global.security.filter.JWTFilter;
+import techpart.webpost.global.security.filter.jwt.JWTUtil;
+import techpart.webpost.global.security.filter.LoginFilter;
+import techpart.webpost.repository.RefreshRepository;
 
 @Slf4j
 @Configuration
@@ -29,6 +30,7 @@ public class SecurityConfig {
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
     private final ObjectMapper objectMapper;
+    private final RefreshRepository refreshRepository;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
@@ -62,27 +64,27 @@ public class SecurityConfig {
         //경로별 인가 작업
         http
                 .authorizeHttpRequests((auth)-> auth
-                        .requestMatchers("/","/api/login","/api/join").permitAll()
-                        .requestMatchers("/api/post").hasAnyRole(Role.ADMIN.toString(),Role.USER.toString())
-                        .requestMatchers("/admin").hasRole(Role.ADMIN.toString())
+                        .requestMatchers("/","/api/login","/api/join","/api/logout").permitAll()
+                        .requestMatchers("/api/post/**","/api/post").hasAnyRole("ADMIN","USER")
+                        .requestMatchers("/api/admin").hasRole("ADMIN")
                         .anyRequest().authenticated());
 
         //세션 stateless 상태로 관리하도록 설정
         http
                 .sessionManagement((session)-> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-        log.info("SecurityConfig.filterChain1");
 
         //로그인 필터 앞에 jwt필터 추가
         http
                 .addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
-        log.info("SecurityConfig.filterChain2");
 
         //로그인 필터 추가
         http
                 .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil,
-                    objectMapper), UsernamePasswordAuthenticationFilter.class);
-        log.info("SecurityConfig.filterChain3");
+                    objectMapper, refreshRepository), UsernamePasswordAuthenticationFilter.class);
+
+        http
+            .addFilterBefore(new CustomLogoutFilter(jwtUtil,refreshRepository), LogoutFilter.class);
 
         return http.build();
     }

@@ -1,4 +1,4 @@
-package techpart.webpost.global.security.jwt;
+package techpart.webpost.global.security.filter.jwt;
 
 import io.jsonwebtoken.Jwts;
 import java.nio.charset.StandardCharsets;
@@ -28,6 +28,10 @@ public class JWTUtil {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("role", String.class);
     }
 
+    public String getCategory(String token) {
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("category", String.class);
+    }
+
 
     //토큰이 소멸되었는지 아닌지에 대한 정보를 불린 형식으로 반환
     public Boolean isExpired(String token) {
@@ -37,9 +41,10 @@ public class JWTUtil {
 
 
     //토큰 생성
-    public String createJwt(String email, String role, Long expiredMs) {
+    public String createJwt(String category, String email, String role, Long expiredMs) {
 
         return Jwts.builder()
+                .claim("category",category)
                 .claim("email", email)
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis())) //현재 발행 시간

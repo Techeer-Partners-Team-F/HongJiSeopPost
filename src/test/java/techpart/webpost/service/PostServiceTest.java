@@ -11,11 +11,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import techpart.webpost.domain.Post;
+import techpart.webpost.domain.PostLike;
 import techpart.webpost.domain.User;
 import techpart.webpost.dto.request.PostDto;
 import techpart.webpost.dto.response.ResPostDto;
 import techpart.webpost.global.constant.Role;
 import techpart.webpost.global.exception.BusinessException;
+import techpart.webpost.repository.PostLikeRepository;
 import techpart.webpost.repository.PostRepository;
 import techpart.webpost.repository.ReplyRepository;
 import techpart.webpost.repository.UserRepository;
@@ -34,7 +36,7 @@ class PostServiceTest {
     private static final String TEST_TITLE = "test title";
 
     private static final User TEST_USER = new User(USERNAME, EMAIL,PASSWORD, Role.ROLE_ADMIN,new BCryptPasswordEncoder());
-    private Post testPost;
+    private static Post testPost;
 
     @InjectMocks
     private PostService postService;
@@ -46,11 +48,13 @@ class PostServiceTest {
     private ReplyRepository replyRepository;
 
     @Mock
+    private PostLikeRepository postLikeRepository;
+
+    @Mock
     private UserRepository userRepository;
 
     @BeforeEach
     void reset(){
-
         testPost = new Post(TEST_USER, TEST_TITLE, TEST_CONTENT);
     }
 
@@ -61,13 +65,18 @@ class PostServiceTest {
             testPost
         );
 
-        doReturn(Optional.of(TEST_USER)).when(userRepository).findByEmail(EMAIL);
-        doReturn(allPostsByUser).when(postRepository).findAllByUser(TEST_USER);
+//        when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.of(TEST_USER));
+//        when(postRepository.findAllByUser(TEST_USER)).thenReturn(allPostsByUser);
+//
+        given(userRepository.findByEmail(EMAIL)).willReturn(Optional.of(TEST_USER));
+        given(postRepository.findAllByUser(TEST_USER)).willReturn(allPostsByUser);
 
         //when
         List<ResPostDto> resPostDtos = postService.allPostByUser(TEST_USER.getEmail());
 
         //then
+        verify(postRepository).findAllByUser(TEST_USER);
+        verify(userRepository).findByEmail(EMAIL);
         assertThat(resPostDtos.size()).isEqualTo(1);
         assertThat(resPostDtos.get(0).getTitle()).isEqualTo(TEST_TITLE);
         assertThat(resPostDtos.get(0).getContent()).isEqualTo(TEST_CONTENT);
@@ -79,13 +88,12 @@ class PostServiceTest {
     @Test
     void 정상_detailPost(){
         //given
-        doReturn(Optional.of(testPost)).when(postRepository).findById(1L);
+        when(postRepository.findById(1L)).thenReturn(Optional.ofNullable(testPost));
 
         //when
         int repeatCnt = 5;
-        for(int i=0;i<5;i++){
+        for(int i=0;i<repeatCnt;i++){
             ResPostDto resPostDto = postService.detailPost(1L);
-
             //then
             assertThat(resPostDto.getViewCnt()).isEqualTo(i+1);
         }
@@ -96,9 +104,8 @@ class PostServiceTest {
         //given
         String updateTitle = "test title update";
         String updateContent = "test content update";
-        doReturn(Optional.of(TEST_USER)).when(userRepository).findByEmail(EMAIL);
-        doReturn(Optional.of(testPost)).when(postRepository).findByIdAndUser(1L, TEST_USER);
-
+        when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.of(TEST_USER));
+        when(postRepository.findByIdAndUser(1L,TEST_USER)).thenReturn(Optional.of(testPost));
         //when
         ResPostDto resPostDto = postService.updatePost(TEST_USER.getEmail(), 1L,
             new PostDto(updateTitle, updateContent));
@@ -106,15 +113,15 @@ class PostServiceTest {
         //then
         assertThat(resPostDto.getTitle()).isEqualTo(updateTitle);
         assertThat(resPostDto.getContent()).isEqualTo(updateContent);
-        verify(postRepository,times(2)).findByIdAndUser(1L, TEST_USER);
+        verify(postRepository).findByIdAndUser(1L, TEST_USER);
     }
 
     @Test
     void 정상_updatePost_title_수정() {
         //given
         String updateTitle = "test title update";
-        doReturn(Optional.of(TEST_USER)).when(userRepository).findByEmail(EMAIL);
-        doReturn(Optional.of(testPost)).when(postRepository).findByIdAndUser(1L, TEST_USER);
+        when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.of(TEST_USER));
+        when(postRepository.findByIdAndUser(1L,TEST_USER)).thenReturn(Optional.of(testPost));
 
         //when
         ResPostDto resPostDto = postService.updatePost(TEST_USER.getEmail(), 1L,
@@ -123,16 +130,15 @@ class PostServiceTest {
         //then
         assertThat(resPostDto.getTitle()).isEqualTo(updateTitle);
         assertThat(resPostDto.getContent()).isEqualTo(testPost.getContent());
-        verify(postRepository,times(2)).findByIdAndUser(1L, TEST_USER);
+        verify(postRepository,times(1)).findByIdAndUser(1L, TEST_USER);
     }
 
     @Test
     void 정상_updatePost_content_수정() {
         //given
         String updateContent = "test content update";
-        doReturn(Optional.of(TEST_USER)).when(userRepository).findByEmail(EMAIL);
-        doReturn(Optional.of(testPost)).when(postRepository).findByIdAndUser(1L, TEST_USER);
-
+        when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.of(TEST_USER));
+        when(postRepository.findByIdAndUser(1L,TEST_USER)).thenReturn(Optional.of(testPost));
         //when
         ResPostDto resPostDto = postService.updatePost(TEST_USER.getEmail(), 1L,
             new PostDto(null, updateContent));
@@ -140,14 +146,17 @@ class PostServiceTest {
         //then
         assertThat(resPostDto.getTitle()).isEqualTo(testPost.getTitle());
         assertThat(resPostDto.getContent()).isEqualTo(updateContent);
-        verify(postRepository,times(2)).findByIdAndUser(1L, TEST_USER);
+        verify(postRepository,times(1)).findByIdAndUser(1L, TEST_USER);
     }
 
     @Test
-    void 정상_likePost(){
+    void 정상_likePost_좋아요추가(){
+        PostLike postLike = getPostLike();
         //given
-        doReturn(Optional.of(TEST_USER)).when(userRepository).findByEmail(EMAIL);
-        doReturn(Optional.of(testPost)).when(postRepository).findByIdAndUser(1L, TEST_USER);
+        when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.of(TEST_USER));
+        when(postRepository.findById(1L)).thenReturn(Optional.of(testPost));
+        when(postLikeRepository.findByUserAndPost(TEST_USER,testPost)).thenReturn(Optional.ofNullable(null));
+        when(postLikeRepository.save(any(PostLike.class))).thenReturn(postLike);
 
         //when
         assertThat(testPost.getLikeCnt()).isEqualTo(0);
@@ -155,13 +164,43 @@ class PostServiceTest {
 
         //then
         assertThat(testPost.getLikeCnt()).isEqualTo(1);
+        verify(postLikeRepository).save(any(PostLike.class));
+        verify(postLikeRepository,never()).delete(any());
+    }
+
+    private static PostLike getPostLike() {
+        return PostLike.builder()
+            .user(TEST_USER)
+            .post(testPost)
+            .build();
+    }
+
+    @Test
+    void 정상_likePost_좋아요가_있는경우_삭제(){
+        PostLike postLike = getPostLike();
+        //given
+        testPost.increaseLike();
+        when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.of(TEST_USER));
+        when(postRepository.findById(1L)).thenReturn(Optional.of(testPost));
+        when(postLikeRepository.findByUserAndPost(TEST_USER,testPost)).thenReturn(
+            Optional.of(postLike));
+        doNothing().when(postLikeRepository).delete(postLike);
+
+        //when
+        assertThat(testPost.getLikeCnt()).isEqualTo(1);
+        postService.likePost(EMAIL,1L);
+
+        //then
+        assertThat(testPost.getLikeCnt()).isEqualTo(0);
+        verify(postLikeRepository).delete(postLike);
+        verify(postLikeRepository,never()).save(postLike);
     }
 
     @Test
     void 비정상_없는유저_BusinessException_호출(){
         //given
-        doThrow(BusinessException.class).when(userRepository).findByEmail(any());
-
+//        when(userRepository.findByEmail(any())).thenThrow(BusinessException.class);
+        given(userRepository.findByEmail(any())).willThrow(BusinessException.class);
 
         //when,then
         assertThatThrownBy(() -> postService.updatePost(TEST_USER.getEmail(),1L,new PostDto()))
@@ -178,9 +217,9 @@ class PostServiceTest {
     void 비정상_없는post_BusinessException_호출(){
 
         //given
-        doReturn(Optional.of(TEST_USER)).when(userRepository).findByEmail(any());
-        doThrow(BusinessException.class).when(postRepository).findByIdAndUser(any(Long.class),any(User.class));
-        doThrow(BusinessException.class).when(postRepository).findById(any(Long.class));
+        when(userRepository.findByEmail(any())).thenReturn(Optional.of(TEST_USER));
+        when(postRepository.findByIdAndUser(any(Long.class),any(User.class))).thenThrow(BusinessException.class);
+        when(postRepository.findById(any(Long.class))).thenThrow(BusinessException.class);
 
         //when,then
         assertThatThrownBy(() -> postService.detailPost(1L))

@@ -18,6 +18,7 @@ import techpart.webpost.domain.Post;
 import techpart.webpost.dto.request.PostDto;
 import techpart.webpost.dto.response.ResPostDto;
 import techpart.webpost.global.security.CustomUserDetails;
+import techpart.webpost.repository.PostLikeRepository;
 import techpart.webpost.service.PostService;
 
 @Slf4j
@@ -27,6 +28,7 @@ import techpart.webpost.service.PostService;
 public class PostController {
 
     private final PostService postService;
+    private final PostLikeRepository postLikeRepository;
 
     @GetMapping
     public ResponseEntity<List<ResPostDto>> allPost() {

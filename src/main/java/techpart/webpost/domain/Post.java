@@ -84,6 +84,10 @@ public class Post {
         this.likeCnt++;
     }
 
+    public void decreaseLike(){
+        this.likeCnt--;
+    }
+
     //techpart/webpost/service/PostServiceTest
     //null값일 경우 update를 하지 않는다.
     public void update(PostDto postDto){

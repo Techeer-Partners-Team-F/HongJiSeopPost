@@ -1,11 +1,13 @@
 package techpart.webpost.controller;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -46,7 +48,7 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<ResPostDto> addPost(@RequestBody PostDto postDto, @AuthenticationPrincipal CustomUserDetails customUserDetails){
+    public ResponseEntity<ResPostDto> addPost(@Valid @RequestBody PostDto postDto, @AuthenticationPrincipal CustomUserDetails customUserDetails){
         String email = customUserDetails.getUsername();
         ResPostDto resPostDto = postService.addPost(email, postDto);
         return ResponseEntity.status(HttpStatus.OK).body(resPostDto);
@@ -72,10 +74,23 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(resPostDto);
     }
 
+    /**
+     * 좋아요 누르면 +1 다시 누르면 -1 및 원상 복귀
+     */
     @PostMapping("/{postId}/like")
     public ResponseEntity<?> addLikePost(@PathVariable("postId") Long postId,@AuthenticationPrincipal CustomUserDetails customUserDetails){
         String email = customUserDetails.getUsername();
         postService.likePost(email,postId);
+        return ResponseEntity.status(HttpStatus.OK).body(null);
+    }
+
+    /**
+     * 북마크 누르면 +1 및 추가 다시 누르면 -1 및 삭제
+     */
+    @PostMapping("/{postId}/bookmark")
+    public ResponseEntity<?> addBookmarkPost(@PathVariable("postId") Long postId, @AuthenticationPrincipal CustomUserDetails customUserDetails){
+        String username = customUserDetails.getUsername();
+        postService.bookmarkPost(username,postId);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 }

@@ -54,13 +54,13 @@ class JoinServiceTest {
             USERNAME,
             JOIN_EMAIL,
             PASSWORD,
-            Role.ROLE_ADMIN
+            Role.ADMIN
         );
 
         User buildUser = new User(USERNAME,
             JOIN_EMAIL,
             PASSWORD,
-            Role.ROLE_ADMIN,
+            Role.ADMIN,
             bCryptPasswordEncoder);
 
         doReturn(buildUser).when(userRepository).save(any(User.class));
@@ -73,7 +73,7 @@ class JoinServiceTest {
 
         //then
         assertThat(resUserDto.getEmail()).isEqualTo(JOIN_EMAIL);
-        assertThat(resUserDto.getRole()).isEqualTo(Role.ROLE_ADMIN);
+        assertThat(resUserDto.getRole()).isEqualTo(Role.ADMIN);
         assertThat(bCryptPasswordEncoder.matches(PASSWORD,foundUser.getPassword())).isTrue();
         //verify
         //메소트 호출 횟수 검증
@@ -86,7 +86,7 @@ class JoinServiceTest {
         User firstUser = new User(USERNAME,
             JOIN_EMAIL,
             PASSWORD,
-            Role.ROLE_ADMIN,
+            Role.ADMIN,
             bCryptPasswordEncoder
         );
 
@@ -94,7 +94,7 @@ class JoinServiceTest {
             USERNAME,
             JOIN_EMAIL,
             PASSWORD,
-            Role.ROLE_ADMIN
+            Role.ADMIN
         );
 
         doReturn(firstUser).when(userRepository).save(firstUser);

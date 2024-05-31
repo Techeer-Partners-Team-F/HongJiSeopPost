@@ -1,7 +1,5 @@
 package techpart.webpost.service;
 
-import jakarta.persistence.Table;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -9,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import techpart.webpost.domain.Bookmark;
 import techpart.webpost.domain.Post;
 import techpart.webpost.domain.PostLike;
 import techpart.webpost.domain.Reply;
@@ -17,6 +16,7 @@ import techpart.webpost.dto.request.PostDto;
 import techpart.webpost.dto.response.ResPostDto;
 import techpart.webpost.global.exception.BusinessException;
 import techpart.webpost.global.exception.ErrorCode;
+import techpart.webpost.repository.BookmarkRepository;
 import techpart.webpost.repository.PostLikeRepository;
 import techpart.webpost.repository.PostRepository;
 import techpart.webpost.repository.ReplyRepository;
@@ -32,6 +32,7 @@ public class PostService {
     private final ReplyRepository replyRepository;
     private final UserRepository userRepository;
     private final PostLikeRepository postLikeRepository;
+    private final BookmarkRepository bookmarkRepository;
 
     public List<ResPostDto> allPost(){
         List<Post> posts =  postRepository.findAll();
@@ -87,16 +88,33 @@ public class PostService {
         User user = getUserOrThrowException(email);
         Optional<PostLike> postLikeByUserAndPost = postLikeRepository.findByUserAndPost(user, existedPost);
         if(postLikeByUserAndPost.isPresent()){
-            existedPost.decreaseLike();
+            existedPost.decreaseLikeCnt();
             postLikeRepository.delete(postLikeByUserAndPost.get());
             return;
         }
-        existedPost.increaseLike();
+        existedPost.increaseLikeCnt();
         PostLike newPostLike = PostLike.builder()
             .post(existedPost)
             .user(user)
             .build();
         postLikeRepository.save(newPostLike);
+    }
+
+    public void bookmarkPost(String email,Long postId){
+        Post existedPost = getPostOrThrowException(postId);
+        User user = getUserOrThrowException(email);
+        Optional<Bookmark> byUserAndPost = bookmarkRepository.findByUserAndPost(user, existedPost);
+        if (byUserAndPost.isPresent()){
+            existedPost.decreaseBookmarkCnt();
+            bookmarkRepository.delete(byUserAndPost.get());
+            return;
+        }
+        existedPost.increaseBookmarkCnt();
+        Bookmark newBookmark = Bookmark.builder()
+            .post(existedPost)
+            .user(user)
+            .build();
+        bookmarkRepository.save(newBookmark);
     }
 
     private User getUserOrThrowException(String email) {

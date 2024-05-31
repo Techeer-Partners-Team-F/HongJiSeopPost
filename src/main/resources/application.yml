@@ -1,4 +1,6 @@
 spring:
+  jwt:
+    secret: 'ThisIsTestSecretCode'
   application:
     name: 'webpost'
 
@@ -21,8 +23,7 @@ spring:
         use_sql_comments: true
     hibernate:
       ddl-auto: create-drop
-  jwt:
-    secret: "6rVmxOM0O8npkeFQp56K4u7LYrTWXFnxzu2_K3mzOnk"
+
 
 server:
   port: 8080

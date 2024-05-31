@@ -35,7 +35,7 @@ class PostServiceTest {
     private static final String TEST_CONTENT = "test content";
     private static final String TEST_TITLE = "test title";
 
-    private static final User TEST_USER = new User(USERNAME, EMAIL,PASSWORD, Role.ROLE_ADMIN,new BCryptPasswordEncoder());
+    private static final User TEST_USER = new User(USERNAME, EMAIL,PASSWORD, Role.ADMIN,new BCryptPasswordEncoder());
     private static Post testPost;
 
     @InjectMocks
@@ -179,7 +179,7 @@ class PostServiceTest {
     void 정상_likePost_좋아요가_있는경우_삭제(){
         PostLike postLike = getPostLike();
         //given
-        testPost.increaseLike();
+        testPost.increaseLikeCnt();
         when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.of(TEST_USER));
         when(postRepository.findById(1L)).thenReturn(Optional.of(testPost));
         when(postLikeRepository.findByUserAndPost(TEST_USER,testPost)).thenReturn(

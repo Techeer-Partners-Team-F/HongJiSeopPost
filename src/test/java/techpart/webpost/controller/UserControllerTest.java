@@ -53,14 +53,14 @@ class UserControllerTest {
             USERNAME,
             JOIN_EMAIL,
             PASSWORD,
-            Role.ROLE_ADMIN
+            Role.ADMIN
         );
 
         //response
         ResUserDto resUserDto = new ResUserDto(
             USERNAME,
             JOIN_EMAIL,
-            Role.ROLE_ADMIN
+            Role.ADMIN
         );
 
         doReturn(resUserDto).when(joinService).join(any(JoinDto.class));
@@ -74,7 +74,7 @@ class UserControllerTest {
         performPostJoin.andExpect(status().isOk())
             .andExpect(jsonPath("email", resUserDto.getEmail()).value(JOIN_EMAIL))
             .andExpect(jsonPath("name", resUserDto.getName()).value(USERNAME))
-            .andExpect(jsonPath("role", resUserDto.getRole()).value(Role.ROLE_ADMIN.name()));
+            .andExpect(jsonPath("role", resUserDto.getRole()).value(Role.ADMIN.name()));
     }
 
     private static MockHttpServletRequestBuilder getMockHttpServletRequestBuilder() {

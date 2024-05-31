@@ -1,7 +1,6 @@
 package techpart.webpost.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,18 +11,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.PastOrPresent;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicUpdate;
 import techpart.webpost.dto.request.PostDto;
-
 @Getter
 @Entity
 @NoArgsConstructor
@@ -38,7 +34,7 @@ public class Post {
     @Column(name = "post_id")
     private Long id;
 
-    @ManyToOne(cascade = CascadeType.REMOVE,fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -58,13 +54,17 @@ public class Post {
     @Column(name = "modified_at", nullable = true)
     private LocalDateTime modifiedAt;
 
-    @Min(value = 0)
     @ColumnDefault("0")
     @Column(name = "like_cnt",nullable = false)
     private int likeCnt;
 
+    @ColumnDefault("0")
     @Column(name = "view_cnt", nullable = false)
     private int viewCnt;
+
+    @ColumnDefault("0")
+    @Column(name = "bookmark_cnt",nullable = false)
+    private int bookmarkCnt;
 
     public Post(User user, String title, String content) {
         this.user = user;
@@ -74,18 +74,27 @@ public class Post {
         this.modifiedAt = null;
         this.viewCnt = 0;
         this.likeCnt = 0;
+        this.bookmarkCnt =0;
     }
 
     public void increaseViewCnt(){
         this.viewCnt++;
     }
 
-    public void increaseLike(){
+    public void increaseLikeCnt(){
         this.likeCnt++;
     }
 
-    public void decreaseLike(){
+    public void decreaseLikeCnt(){
         this.likeCnt--;
+    }
+
+    public void increaseBookmarkCnt(){
+        this.bookmarkCnt++;
+    }
+
+    public void decreaseBookmarkCnt(){
+        this.bookmarkCnt--;
     }
 
     //techpart/webpost/service/PostServiceTest

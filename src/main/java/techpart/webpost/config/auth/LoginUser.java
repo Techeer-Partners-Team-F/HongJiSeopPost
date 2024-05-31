@@ -1,30 +1,27 @@
-package techpart.webpost.global.security;
+package techpart.webpost.config.auth;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import techpart.webpost.domain.User;
 
+
+@Getter
 @RequiredArgsConstructor
-public class CustomUserDetails implements UserDetails {
+public class LoginUser implements UserDetails {
+
+    private static final String PREFIX = "ROLE_";
 
     private final User user;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Collection<GrantedAuthority> collection = new ArrayList<>();
-
-        collection.add(new GrantedAuthority() {
-
-            @Override
-            public String getAuthority() {
-                return user.getRole().name();
-            }
-        });
-
-        return collection;
+        Collection<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(() -> PREFIX + user.getRole());
+        return authorities;
     }
 
     @Override
@@ -32,12 +29,10 @@ public class CustomUserDetails implements UserDetails {
         return user.getPassword();
     }
 
-
     @Override
     public String getUsername() {
         return user.getEmail();
     }
-
 
     @Override
     public boolean isAccountNonExpired() {
@@ -58,4 +53,5 @@ public class CustomUserDetails implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
 }

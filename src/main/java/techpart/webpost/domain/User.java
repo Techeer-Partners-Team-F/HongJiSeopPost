@@ -19,6 +19,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import techpart.webpost.dto.request.JoinDto;
 import techpart.webpost.global.constant.Role;
 
 @Getter
@@ -65,5 +66,13 @@ public class User {
         this.role = role;
         this.createdAt = LocalDateTime.now();
         this.modifiedAt = null;
+    }
+
+    public void update(JoinDto joinDto){
+        this.name = joinDto.getName();
+        this.email = joinDto.getEmail();
+        this.password = new BCryptPasswordEncoder().encode(joinDto.getPassword());
+        this.role = joinDto.getRole();
+        this.modifiedAt = LocalDateTime.now();
     }
 }

@@ -9,21 +9,21 @@ import org.springframework.transaction.annotation.Transactional;
 import techpart.webpost.domain.User;
 import techpart.webpost.dto.request.JoinDto;
 import techpart.webpost.dto.response.ResUserDto;
+import techpart.webpost.dto.response.ResUserInfoDto;
 import techpart.webpost.global.constant.Role;
 import techpart.webpost.global.exception.BusinessException;
 import techpart.webpost.global.exception.ErrorCode;
 import techpart.webpost.repository.UserRepository;
-import techpart.webpost.validation.UserValidation;
 
 @Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class JoinService {
+public class UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final UserValidation userValidation;
+//    private final UserValidation userValidation;
 
     public ResUserDto join(JoinDto joinDto){
         log.info("joinService start");
@@ -33,7 +33,9 @@ public class JoinService {
         Role role = joinDto.getRole();
 
         boolean isExist = userRepository.existsByEmail(userEmail);
-        userValidation.checkEmailIsDupl(isExist);
+        if(isExist){
+            throw new BusinessException(ErrorCode.EMAIL_DUPLICATION);
+        }
 
         User newUser = User.builder()
             .name(username)
@@ -54,5 +56,18 @@ public class JoinService {
         );
     }
 
+    public void updateUserInfo(JoinDto joinDto,Long userId){
+        User user = userRepository.findById(userId).orElseThrow(
+            () -> new BusinessException(ErrorCode.USER_NOT_FOUND)
+        );
+        user.update(joinDto);
+    }
+
+    public ResUserInfoDto getUserInfo(JoinDto joinDto,Long userId){
+        User user = userRepository.findById(userId).orElseThrow(
+            () -> new BusinessException(ErrorCode.USER_NOT_FOUND)
+        );
+        return new ResUserInfoDto(joinDto);
+    }
 
 }

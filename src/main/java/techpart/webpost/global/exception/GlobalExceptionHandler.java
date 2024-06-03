@@ -1,5 +1,6 @@
 package techpart.webpost.global.exception;
 
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import java.nio.file.AccessDeniedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,9 @@ public class GlobalExceptionHandler {
      * HttpMessageConverter 에서 등록한 HttpMessageConverter binding 못할경우 발생
      * 주로 @RequestBody, @RequestPart 어노테이션에서 발생
      */
+    @ApiResponse(
+        responseCode = "400",description = "body 및 part 데이터 형식 오류 발생"
+    )
     @ExceptionHandler(MethodArgumentNotValidException.class)
     protected ResponseEntity<ResValidErrorDto> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         log.error("handleMethodArgumentNotValidException", e);
@@ -42,6 +46,9 @@ public class GlobalExceptionHandler {
      * enum type 일치하지 않아 binding 못할 경우 발생
      * 주로 @RequestParam enum으로 binding 못했을 경우 발생
      */
+    @ApiResponse(
+        responseCode = "400",description = "파라미터 데이터 형식 오류 발생"
+    )
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     protected ResponseEntity<ResValidErrorDto> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
         log.error("handleMethodArgumentTypeMismatchException", e);
@@ -62,6 +69,9 @@ public class GlobalExceptionHandler {
     /**
      * Authentication 객체가 필요한 권한을 보유하지 않은 경우 발생합
      */
+    @ApiResponse(
+        responseCode = "400",description = "권한 없음"
+    )
     @ExceptionHandler(AccessDeniedException.class)
     protected ResponseEntity<ResValidErrorDto> handleAccessDeniedException(AccessDeniedException e) {
         log.error("handleAccessDeniedException", e);
@@ -69,6 +79,9 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.valueOf(ErrorCode.HANDLE_ACCESS_DENIED.getStatus()));
     }
 
+    @ApiResponse(
+        responseCode = "???",description = "서버 정상적 에러 처리"
+    )
     @ExceptionHandler(BusinessException.class)
     protected ResponseEntity<ResErrorDto> handleBusinessException(final BusinessException e) {
         log.error("handleBusinessException", e);

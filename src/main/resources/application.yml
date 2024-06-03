@@ -23,8 +23,18 @@ spring:
         use_sql_comments: true
     hibernate:
       ddl-auto: create-drop
-
-
-server:
-  port: 8080
-
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    groups-order: DESC
+    operationsSorter: method
+    disable-swagger-default-url: true
+    display-request-duration: true
+    defaultModelsExpandDepth: -1
+  api-docs:
+    path: /api
+    show-actuator: true
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+  paths-to-match:
+    - /**

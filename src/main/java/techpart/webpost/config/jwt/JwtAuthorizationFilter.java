@@ -34,11 +34,16 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
         if (isHeaderVerify(request, response)) {
             // 토큰이 존재함
-            log.debug("디버그 : 토큰이 존재함");
+            log.info("디버그 : 토큰이 존재함");
 
             String token = request.getHeader(JwtVO.HEADER).replace(JwtVO.TOKEN_PREFIX, "");
+            log.info("token : "+token);
             LoginUser loginUser = jwtProcess.verify(token);
-            log.debug("디버그 : 토큰이 검증이 완료됨");
+            log.info("디버그 : 토큰이 검증이 완료됨");
+            log.info("loginUser.getUsername() (이메일) : "+loginUser.getUsername());
+            log.info("loginUser.getPassword() : "+loginUser.getPassword());
+            log.info(loginUser.getUser().getName());
+            log.info(loginUser.getUser().getRole().getName());
 
             // 임시 세션 (첫 인자 값 : UserDetails 타입 or username)
             // 근데 지금 username가 null값이고 어짜피 verify를 했기때문에 어떤 값이 들어가든 상관없다. 임시 세션 생성자체가 목표기 때문
@@ -47,7 +52,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
             //강제 로그인
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            log.debug("디버그 : 임시 세션이 생성됨");
+            log.info("디버그 : 임시 세션이 생성됨");
         }
         chain.doFilter(request, response);
     }

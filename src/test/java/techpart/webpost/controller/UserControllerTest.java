@@ -21,7 +21,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import techpart.webpost.dto.request.JoinDto;
 import techpart.webpost.dto.response.ResUserDto;
 import techpart.webpost.global.constant.Role;
-import techpart.webpost.service.JoinService;
+import techpart.webpost.service.UserService;
 
 @ExtendWith(MockitoExtension.class)
 class UserControllerTest {
@@ -34,7 +34,7 @@ class UserControllerTest {
     private UserController userController;
 
     @Mock
-    private JoinService joinService;
+    private UserService userService;
 
     //mock http 호출 역할
     private MockMvc mockMvc;
@@ -63,7 +63,7 @@ class UserControllerTest {
             Role.ADMIN
         );
 
-        doReturn(resUserDto).when(joinService).join(any(JoinDto.class));
+        doReturn(resUserDto).when(userService).join(any(JoinDto.class));
 
         //when
         ResultActions performPostJoin = mockMvc.perform(

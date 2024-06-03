@@ -19,6 +19,13 @@ public enum ErrorCode {
     // User
     EMAIL_DUPLICATION(400, "U001", "Email is Duplication"),
     LOGIN_INPUT_INVALID(400, "U002", "Login input is invalid"),
+    USER_NOT_FOUND(400, "U003", "User not found"),
+
+    // Post
+    POST_NOT_FOUND(400, "P002", "Post not found"),
+    POST_USER_MISMATCH(400, "P003", "Post does not belong to the user");
+
+
 
     ;
     private final String code;

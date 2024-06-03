@@ -99,6 +99,7 @@ public class SecurityConfig {
         //	Any URL that starts with "/admin/" will be restricted to users who have the role "ROLE_ADMIN". You will notice that since we are invoking the hasRole method we do not need to specify the "ROLE_" prefix.
         http
             .authorizeHttpRequests((authorize) -> authorize
+                .requestMatchers( "/api/swagger-config","/swagger-ui/**").permitAll()
                 .requestMatchers("/api/post/**").authenticated()
                 .requestMatchers("/api/admin/**").hasRole(Role.ADMIN.getName())
                 .anyRequest().permitAll()

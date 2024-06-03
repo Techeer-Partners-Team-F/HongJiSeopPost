@@ -42,8 +42,8 @@ public class PostService {
             .collect(Collectors.toList());
     }
 
-    public List<ResPostDto> allPostByUser(String email){
-        User user = getUserOrThrowException(email);
+    public List<ResPostDto> allPostByUser(Long userId){
+        User user = getUserOrThrowException(userId);
         List<Post> allPostsByUser = postRepository.findAllByUser(user);
 
         return allPostsByUser.stream()
@@ -57,9 +57,8 @@ public class PostService {
         return convertToDto(existedPost,true);
     }
 
-    public ResPostDto addPost(String email, PostDto postDto){
-        log.info("addPost email ={}",email);
-        User postUser = getUserOrThrowException(email);
+    public ResPostDto addPost(Long userId, PostDto postDto){
+        User postUser = getUserOrThrowException(userId);
         Post newPost = new Post(postUser, postDto.getTitle(), postDto.getContent());
 
         postRepository.save(newPost);
@@ -67,8 +66,8 @@ public class PostService {
         return convertToDto(newPost,true);
     }
 
-    public ResPostDto updatePost(String email, Long postId, PostDto postDto){
-        User postUser = getUserOrThrowException(email);
+    public ResPostDto updatePost(Long userId, Long postId, PostDto postDto){
+        User postUser = getUserOrThrowException(userId);
         Post existedPost = getPostOrThrowException(postId, postUser);
 
         existedPost.update(postDto);
@@ -76,16 +75,16 @@ public class PostService {
         return convertToDto(existedPost,true);
     }
 
-    public void deletePost(String email, Long postId){
-        User postUser = getUserOrThrowException(email);
+    public void deletePost(Long userId, Long postId){
+        User postUser = getUserOrThrowException(userId);
         Post existedPost = getPostOrThrowException(postId, postUser);
 
         postRepository.delete(existedPost);
     }
 
-    public void likePost(String email, Long postId){
+    public void likePost(Long userId, Long postId){
         Post existedPost = getPostOrThrowException(postId);
-        User user = getUserOrThrowException(email);
+        User user = getUserOrThrowException(userId);
         Optional<PostLike> postLikeByUserAndPost = postLikeRepository.findByUserAndPost(user, existedPost);
         if(postLikeByUserAndPost.isPresent()){
             existedPost.decreaseLikeCnt();
@@ -100,9 +99,9 @@ public class PostService {
         postLikeRepository.save(newPostLike);
     }
 
-    public void bookmarkPost(String email,Long postId){
+    public void bookmarkPost(Long userId,Long postId){
         Post existedPost = getPostOrThrowException(postId);
-        User user = getUserOrThrowException(email);
+        User user = getUserOrThrowException(userId);
         Optional<Bookmark> byUserAndPost = bookmarkRepository.findByUserAndPost(user, existedPost);
         if (byUserAndPost.isPresent()){
             existedPost.decreaseBookmarkCnt();
@@ -117,16 +116,16 @@ public class PostService {
         bookmarkRepository.save(newBookmark);
     }
 
-    private User getUserOrThrowException(String email) {
-        return userRepository.findByEmail(email).orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
+    private User getUserOrThrowException(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
     }
 
     private Post getPostOrThrowException(Long postId, User postUser) {
-        return postRepository.findByIdAndUser(postId, postUser).orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
+        return postRepository.findByIdAndUser(postId, postUser).orElseThrow(() -> new BusinessException(ErrorCode.POST_USER_MISMATCH));
     }
 
     private Post getPostOrThrowException(Long postId) {
-        return postRepository.findById(postId).orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
+        return postRepository.findById(postId).orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
     }
 
     private ResPostDto convertToDto(Post post, boolean getReply){
@@ -136,9 +135,6 @@ public class PostService {
         }
         return new ResPostDto(
             post,
-            post.getUser().getName(),
-            post.getUser().getRole(),
-            post.getUser().getEmail(),
             allByPost
         );
     }

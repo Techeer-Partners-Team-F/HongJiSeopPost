@@ -44,8 +44,11 @@ public class ResPostDto {
 
     private final List<Reply> replies;
 
-    public ResPostDto(Post post, String name, Role role, String email, List<Reply> replies) {
-        this.resUserDto = new ResUserDto(name,email,role);
+    public ResPostDto(Post post, List<Reply> replies) {
+        this.resUserDto = new ResUserDto(post.getUser().getName(),
+            post.getUser().getEmail(),
+            post.getUser().getRole()
+        );
         this.title = post.getTitle();
         this.content = post.getContent();
         this.createdAt = post.getCreatedAt();

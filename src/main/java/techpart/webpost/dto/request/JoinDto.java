@@ -1,9 +1,9 @@
 package techpart.webpost.dto.request;
 
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,6 +15,7 @@ import techpart.webpost.global.constant.Role;
 public class JoinDto{
 
     @NotEmpty
+    @NotBlank
     private String name;
 
     @Email
@@ -22,9 +23,10 @@ public class JoinDto{
     private String email;
 
     @NotEmpty
+    @NotBlank
     private String password;
 
-    @NotEmpty
-    @Enumerated(value = EnumType.STRING)
+    //jsonCraetor 적용
+    @NotNull(message = "잘못된 입력값입니다.")
     private Role role;
 }
